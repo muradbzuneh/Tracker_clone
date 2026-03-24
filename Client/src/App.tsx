@@ -1,11 +1,14 @@
+import { Route, Routes } from "react-router-dom"
+import Layout from "./pages/Layout"
 
 
 const App = () => {
   return (
     <div>
-       <h1 className="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+      <Routes>
+        <Route path="/" element ={<Layout />}></Route>
+      </Routes>
+  
     </div>
   )
 }
