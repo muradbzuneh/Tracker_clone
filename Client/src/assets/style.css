@@ -1,17 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@reference "tailwindcss";
-
-/* Global */
-* {
-  font-family: 'Rethink Sans', sans-serif;
-}
-body{
-  @apply dark:bg-slate-950 dark:text-white;
-}
 /* Shared Page Styles */
 .page-container {
   @apply min-h-screen bg-slate-50 dark:bg-slate-950 pb-24 transition-colors duration-200;
@@ -31,7 +18,7 @@ body{
 
 /* Login Page */
 .login-page-container {
-  @apply flex flex-col items-center justify-center w-full h-screen px-4 bg-white dark:bg-slate-950 transition-colors duration-200;
+  @apply flex items-center justify-center w-full h-screen px-4 bg-white dark:bg-slate-950 transition-colors duration-200;
 }
 
 .login-form {
@@ -43,12 +30,12 @@ body{
 }
 
 .login-button {
-  @apply mt-9 ml-12 py-2.5 w-80 rounded-md bg-green-600 text-white transition hover:bg-green-700 disabled:opacity-60 text-sm;
+  @apply mt-6 py-2.5 w-full rounded-md bg-green-600 text-white transition hover:bg-green-700 disabled:opacity-60 text-sm;
 }
 
 /* Dashboard Page */
 .dashboard-header {
-  @apply bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-6 pt-12 pb-20 rounded-b-3xl;
+  @apply bg-linear-to-br from-emerald-500 to-emerald-600 text-white p-6 pt-12 pb-20 rounded-b-3xl;
 }
 
 .dashboard-grid {
@@ -80,7 +67,7 @@ body{
 
 /* Onboarding Page */
 .onboarding-container {
-  @apply min-h-screen bg-gradient-to-b from-emerald-50 to-white dark:from-slate-900 dark:to-slate-950 flex flex-col transition-colors duration-200;
+  @apply min-h-screen bg-linear-to-b from-emerald-50 to-white dark:from-slate-900 dark:to-slate-950 flex flex-col transition-colors duration-200;
 }
 
 .onboarding-wrapper {

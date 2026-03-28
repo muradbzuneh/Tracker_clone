@@ -1,3 +1,4 @@
+import mockApi from '../assets/mockApi.ts'
 import {
   createContext,
   useState,
@@ -9,10 +10,11 @@ import { useNavigate } from "react-router-dom";
 import type {
   AppContextType,
   User,
-  Credential,
+  Credentials,
   FoodEntry,
   ActivityEntry,
-} from "../types/types.ts";
+} from "../types/index.ts";
+
 
 // 👉 Create context
 const AppContext = createContext<AppContextType | null>(null);
@@ -21,14 +23,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<User | null>(null);
-  const [isUserFetched, setIsUserFetched] = useState(false);
+  const [isUserFetched, setIsUserFetched] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [allFoodLogs, setAllFoodLogs] = useState<FoodEntry[]>([]);
   const [allActivityLogs, setActivityLogs] = useState<ActivityEntry[]>([]);
 
   // ✅ SIGNUP
-  const signup = async (credential: Credential) => {
-    const { data } = await mockApi.auth.register(credential);
+  const signup = async (Credentials: Credentials) => {
+    const { data } = await mockApi.auth.register(Credentials);
 
     setUser(data.user);
 
