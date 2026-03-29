@@ -11,10 +11,10 @@ const App = () => {
   if (!user) {
     return isUserFetched ? <Login /> : <Loading />;
   }
-if(!onboardingCompleted){
+  if(!onboardingCompleted){
   return  <Onboarding />
-  
-}
+
+ }
   return (
     <div>
       <Routes>
