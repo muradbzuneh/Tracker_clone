@@ -2,9 +2,6 @@ import {
   ArrowLeft,
   ArrowRight,
   PersonStanding,
-  ScaleIcon,
-  Target,
-  User,
 } from "lucide-react";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -61,6 +58,7 @@ const Onboarding = () => {
     try {
       const userData: Partial<UserData> = {
         ...formData,
+        goal: formData.goal as "maintain" | "lose" | "gain",
         createdAt: new Date().toISOString(),
       };
 
@@ -73,7 +71,7 @@ const Onboarding = () => {
       setOnboardingCompleted(true);
 
       await fetchUser(localStorage.getItem("token") || "");
-    } catch (err) {
+    } catch {
       toast.error("Something went wrong");
     }
   };
@@ -203,13 +201,19 @@ const Onboarding = () => {
           <div className="border-slate-200 dark:border-slate-700 my-6 max-w-lg">
             <div>
               <h3>Daily target</h3>
-              <div>
+              <div className="flex flex-col gap-8">
+                <div >
+                  <Slider label="Daily Calorie Intake" 
+                    min={120} max={4000} step={50} value={formData.dailyCalorieIntake} 
+                    onChange={(v) => updateField('dailyCalorieIntake', v)} unit="kcal" infoText="the total calories you plan to consume each" />
+                </div>
+
                 <div>
-              <Slider label="Daily Calorie Intake" 
-                min={120} max={4000} step={50} value={formData.dailyCalorieIntake} 
-                onChange={(v) =>updateField ('dailyCalorieIntake', v)} unit="kcal" infoText="the total calories you plan to consume 
-                each" />
-                </div> 
+                  <Slider label="Daily Calorie Burn" 
+                    min={100} max={3000} step={50} value={formData.dailyCalorieBurn} 
+                    onChange={(v) => updateField('dailyCalorieBurn', v)} unit="kcal" infoText="the total calories you aim to increase each day" />
+                </div>
+              </div>
             </div>
           </div>
               
