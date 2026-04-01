@@ -23,7 +23,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<User | null>(null);
-  const [isUserFetched, setIsUserFetched] = useState(true);
+  const [isUserFetched, setIsUserFetched] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [allFoodLogs, setAllFoodLogs] = useState<FoodEntry[]>([]);
   const [allActivityLogs, setActivityLogs] = useState<ActivityEntry[]>([]);
@@ -42,7 +42,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // ✅ LOGIN
-  const login = async (credential: Credential) => {
+  const login = async (credential: Credentials) => {
     const { data } = await mockApi.auth.login(credential);
 
     setUser(data.user);
@@ -55,12 +55,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // ✅ FETCH USER
-  const fetchUser = async (token: string) => {
+  const fetchUser = async (_token: string) => {
     const { data } = await mockApi.user.me();
 
-    setUser(data.user);
+    setUser(data);
 
-    if (data?.user?.age && data?.user?.weight && data?.user?.goal) {
+    if (data?.age && data?.weight && data?.goal) {
       setOnboardingCompleted(true);
     }
 
@@ -68,13 +68,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // ✅ FETCH FOOD LOGS
-  const fetchFoodLogs = async (token: string) => {
+  const fetchFoodLogs = async (_token: string) => {
     const { data } = await mockApi.foodLogs.list();
     setAllFoodLogs(data);
   };
 
   // ✅ FETCH ACTIVITY LOGS
-  const fetchActivityLogs = async (token: string) => {
+  const fetchActivityLogs = async (_token: string) => {
     const { data } = await mockApi.activityLogs.list();
     setActivityLogs(data);
   };
@@ -109,11 +109,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     signup,
     login,
     logout,
+    fetchUser,
     onboardingCompleted,
     setOnboardingCompleted,
     allFoodLogs,
     setAllFoodLogs,
     allActivityLogs,
+    setAllActivityLogs: setActivityLogs,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

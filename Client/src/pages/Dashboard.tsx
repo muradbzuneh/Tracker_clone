@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect,useCallback, useState } from "react";
 import { getMotivationalMessage } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 import type { ActivityEntry, FoodEntry } from "../types";
@@ -21,41 +21,42 @@ const Dashboard = () => {
   const [todayFood, setTodayFood] = useState<FoodEntry[]>([]);
   const [todayActivity, setTodayActivity] = useState<ActivityEntry[]>([]);
 
-  // ✅ Filter today's data
-  useEffect(() => {
-    const today = new Date().toDateString();
 
-    setTodayFood(
-      allFoodLogs.filter(
-        (f) => new Date(f.date).toDateString() === today
-      )
-    );
 
-    setTodayActivity(
-      allActivityLogs.filter(
-        (a) => new Date(a.date).toDateString() === today
-      )
-    );
-  }, [allFoodLogs, allActivityLogs]);
+const loadUserData = useCallback(() => {
+  const today = new Date().toISOString().split('T')[0];
+
+  const foodData = allFoodLogs.filter((f: FoodEntry) =>
+    (f.createdAt?.split('T')[0] ?? f.date) === today
+  );
+  setTodayFood(foodData);
+
+  const activityData = allActivityLogs.filter((a: ActivityEntry) =>
+    (a.createdAt?.split('T')[0] ?? a.date) === today
+  );
+  setTodayActivity(activityData);
+}, [allFoodLogs, allActivityLogs]);
+
+
+useEffect(() => {
+  loadUserData();
+}, [loadUserData]);
 
   // ✅ Calculations
-  const totalCalories = useMemo(
-    () => todayFood.reduce((sum, f) => sum + f.calories, 0),
-    [todayFood]
-  );
+  const totalCalories: number = todayFood.reduce((sum, f) => sum + f.calories, 0)
 
-  const totalBurned = useMemo(
-    () => todayActivity.reduce((sum, a) => sum + a.caloriesBurned, 0),
-    [todayActivity]
-  );
 
-  const totalActiveMinutes = useMemo(
-    () => todayActivity.reduce((sum, a) => sum + a.duration, 0),
-    [todayActivity]
-  );
+
+  const totalBurned : number =todayActivity.reduce((sum, a) => sum + (a.calories || 0), 0)
+   
+
+  const totalActiveMinutes: number = todayActivity.reduce((sum, a) => sum + a.duration, 0)
+    
+  
 
   const DAILY_CALORIE_LIMIT = user?.dailyCalorieIntake || 2000;
-  const remainingCalories = DAILY_CALORIE_LIMIT - totalCalories;
+  const netCalories = totalCalories - totalBurned;
+  const remainingCalories: number = DAILY_CALORIE_LIMIT - netCalories;
 
   const motivation = getMotivationalMessage(
     totalCalories,
@@ -82,12 +83,13 @@ const Dashboard = () => {
     <div className="page-container bg-[#07121E] min-h-screen text-white p-4 md:p-6 space-y-6">
       
       {/* HEADER */}
-      <div className=" dashboard-header flex items-center justify-between">
+      <div className=" dashboard-header items-center justify-between">
+      <p className="text-emerald-50 text-sm font-medium">Well come back</p>
         <h1 className="text-xl md:text-2xl font-semibold">
           Hi, {user?.name || "User"} 👋
         </h1>
 
-        <div className="bg-[#12263A] px-4 py-2 rounded-xl flex items-center gap-2 text-sm text-gray-300">
+        <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl flex items-center gap-2 text-sm text-gray-300">
           <span>{motivation.emoji}</span>
           <span>{motivation.text}</span>
         </div>
@@ -95,7 +97,7 @@ const Dashboard = () => {
 
       {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+      
         {/* CALORIES CARD */}
         <Card>
           <div className="flex justify-between items-center mb-3">
@@ -103,19 +105,19 @@ const Dashboard = () => {
               <HamburgerIcon size={18} />
               <p className="text-sm">Calories Consumed</p>
             </div>
-            <p className="text-xl font-semibold">{totalCalories}</p>
+            <p className="text-xl font-semibold">{totalCalories} <span className="text-sm text-gray-400">/ {DAILY_CALORIE_LIMIT} kcal</span></p>
           </div>
 
-          <ProgressBar value={200} max={400} />
+          <ProgressBar value={netCalories} max={DAILY_CALORIE_LIMIT} />
 
           <div className="flex justify-between mt-2 text-xs text-gray-400">
             <span>
               {remainingCalories >= 0
-                ? `${remainingCalories} kcal remaining`
-                : `${Math.abs(remainingCalories)} kcal over`}
+                ? `${remainingCalories} kcal remaining (net)`
+                : `${Math.abs(remainingCalories)} kcal over limit`}
             </span>
             <span>
-              {Math.round((totalCalories / DAILY_CALORIE_LIMIT) * 100)}%
+              {Math.min(Math.round((netCalories / DAILY_CALORIE_LIMIT) * 100), 100)}%
             </span>
           </div>
 
