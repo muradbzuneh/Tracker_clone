@@ -101,8 +101,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       setIsUserFetched(true);
     }
   }, []);
-
+ const today = new Date().toISOString().split('T')[0];
   const value: AppContextType = {
+    today,
     user,
     setUser,
     isUserFetched,
@@ -116,6 +117,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setAllFoodLogs,
     allActivityLogs,
     setAllActivityLogs: setActivityLogs,
+    
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

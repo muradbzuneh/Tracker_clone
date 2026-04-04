@@ -45,7 +45,7 @@ export interface ProfileFormData {
 }
 
 // Food
-export interface FormData {
+export interface FoodFormData {
     name: string;
     calories: number;
     mealType: string;
@@ -87,6 +87,7 @@ export type AppContextType = {
     setAllFoodLogs: React.Dispatch<React.SetStateAction<FoodEntry[]>>;
     allActivityLogs: ActivityEntry[];
     setAllActivityLogs: React.Dispatch<React.SetStateAction<ActivityEntry[]>>;
+    today: string;
 };
 
 export const initialState: AppContextType = {

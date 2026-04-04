@@ -7,6 +7,7 @@ import Onboarding from "./pages/Onboarding";
 import Activity from "./pages/Activity";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import FoodLog from "./pages/FoodLog";
 
 const App = () => {
   const { user, isUserFetched, onboardingCompleted } = useAppContext();
@@ -27,7 +28,7 @@ const App = () => {
         {/* Child routes */}
         <Route index element={<Dashboard />} />
         <Route path="activity" element={<Activity />} />
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/food" element={<FoodLog/>} />
         <Route path="profile" element={<Profile />} />
 
       </Route>

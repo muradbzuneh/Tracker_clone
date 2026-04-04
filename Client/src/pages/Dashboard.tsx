@@ -16,7 +16,7 @@ import {
 import CaloriesChart from "../assets/CaloriesChart";
 
 const Dashboard = () => {
-  const { user, allActivityLogs, allFoodLogs } = useAppContext();
+  const { user, allActivityLogs, allFoodLogs, today } = useAppContext();
 
   const [todayFood, setTodayFood] = useState<FoodEntry[]>([]);
   const [todayActivity, setTodayActivity] = useState<ActivityEntry[]>([]);
@@ -24,7 +24,7 @@ const Dashboard = () => {
 
 
 const loadUserData = useCallback(() => {
-  const today = new Date().toISOString().split('T')[0];
+  
 
   const foodData = allFoodLogs.filter((f: FoodEntry) =>
     (f.createdAt?.split('T')[0] ?? f.date) === today
@@ -35,7 +35,7 @@ const loadUserData = useCallback(() => {
     (a.createdAt?.split('T')[0] ?? a.date) === today
   );
   setTodayActivity(activityData);
-}, [allFoodLogs, allActivityLogs]);
+}, [allFoodLogs, allActivityLogs, today]);
 
 
 useEffect(() => {
@@ -199,14 +199,14 @@ useEffect(() => {
         <Card>
           <h3 className="text-sm text-gray-400 mb-4">Body Metrics</h3>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="flex flex-col gap-1">
+          <div className="flex flex-col md:grid-cols-3 gap-8">
+            <div className="flex justify-between gap-1">
               <ScaleIcon size={16} />
               <span>{user.weight} kg</span>
             </div>
 
             {user.height && (
-              <div className="flex flex-col gap-1">
+              <div className="flex justify-between gap-1">
                 <Ruler size={16} />
                 <span>{user.height} cm</span>
               </div>
