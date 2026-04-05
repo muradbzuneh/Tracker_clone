@@ -49,6 +49,7 @@ export interface FoodFormData {
     name: string;
     calories: number;
     mealType: string;
+    duration?: number;
 }
 
 // Food Entry
