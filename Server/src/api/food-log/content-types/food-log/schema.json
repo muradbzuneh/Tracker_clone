@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "food_logs",
+  "info": {
+    "singularName": "food-log",
+    "pluralName": "food-logs",
+    "displayName": "food-log"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "calories": {
+      "type": "integer"
+    },
+    "mealType": {
+      "type": "string"
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}
