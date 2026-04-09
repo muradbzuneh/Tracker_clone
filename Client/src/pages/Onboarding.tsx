@@ -9,7 +9,7 @@ import { useAppContext } from "../context/AppContext";
 import type { ProfileFormData, UserData } from "../types";
 import Input from "../assets/ui/Input";
 import Button from "../assets/ui/Button";
-import mockApi from "../assets/mockApi";
+import api from "../config/api";
 import { ageRanges, goalOptions } from "../assets/assets";
 import Slider from "../assets/ui/Slider";
 
@@ -62,14 +62,11 @@ const Onboarding = () => {
         createdAt: new Date().toISOString(),
       };
 
-      localStorage.setItem("fitnessUser", JSON.stringify(userData));
-
-      await mockApi.user.update(user?.id || "", userData);
+      // PUT /users/:id — Strapi users-permissions update
+      await api.put(`/users/${user?.id}`, userData);
 
       toast.success("Profile updated successfully");
-
       setOnboardingCompleted(true);
-
       await fetchUser(localStorage.getItem("token") || "");
     } catch {
       toast.error("Something went wrong");

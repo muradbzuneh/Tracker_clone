@@ -105,4 +105,5 @@ export const initialState: AppContextType = {
     setAllFoodLogs: () => {},
     allActivityLogs: [],
     setAllActivityLogs: () => {},
+    today: new Date().toISOString().split('T')[0],
 };

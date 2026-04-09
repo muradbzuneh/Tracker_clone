@@ -8,6 +8,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login = () => {
   const [state, setState] = useState<"login" | "signup">("signup");
@@ -31,8 +32,8 @@ const Login = () => {
       } else {
         await signup({ email, password, username }); // ✅ FIXED
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      toast.error(error?.message || "Authentication failed");
     }
 
     setIsSubmitted(false);
@@ -47,6 +48,7 @@ const Login = () => {
 
   return (
     <main>
+      <Toaster />
       <form className="login-page-container" onSubmit={handleSubmit}>
         <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
           {state === "login" ? "Sign In" : "Sign Up"}

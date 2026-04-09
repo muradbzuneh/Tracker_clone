@@ -1,4 +1,4 @@
-import mockApi from '../assets/mockApi.ts'
+import api from '../config/api';
 import {
   createContext,
   useState,
@@ -6,7 +6,6 @@ import {
   useContext,
 } from "react";
 import { useNavigate } from "react-router-dom";
-
 import type {
   AppContextType,
   User,
@@ -14,81 +13,93 @@ import type {
   FoodEntry,
   ActivityEntry,
 } from "../types/index.ts";
-import api from '../config/api.ts';
 
-
-// 👉 Create context
 const AppContext = createContext<AppContextType | null>(null);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<User | null>(null);
-  const [isUserFetched, setIsUserFetched] = useState(localStorage.getItem('token')? false:true);
+  const [isUserFetched, setIsUserFetched] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [allFoodLogs, setAllFoodLogs] = useState<FoodEntry[]>([]);
   const [allActivityLogs, setActivityLogs] = useState<ActivityEntry[]>([]);
 
-  // ✅ SIGNUP
-  const signup = async (Credentials: Credentials) => {
-
+  // ✅ SIGNUP — POST /auth/local/register
+  const signup = async (credentials: Credentials) => {
     try {
-
-      const { data } = await api.post('/auth/local/register', Credentials);
-
-    setUser({ ...data.user, token:data.jwt} );
-
-    if (data?.user?.age && data?.user?.weight && data?.user?.goal) {
-      setOnboardingCompleted(true);
+      const { data } = await api.post('/auth/local/register', {
+        username: credentials.username,
+        email: credentials.email,
+        password: credentials.password,
+      });
+      localStorage.setItem("token", data.jwt);
+      setUser({ ...data.user, token: data.jwt });
+      // new user never has profile data yet
+      setOnboardingCompleted(false);
+    } catch (error: any) {
+      throw new Error(
+        error?.response?.data?.error?.message || "Signup failed"
+      );
     }
-
-    localStorage.setItem("token", data.jwt);
-    api.defaults.headers.common['Authorization'] =`Bearer ${data.jwt}`
   };
 
-      
-    } catch (error) {
-      console.log(error)
-    }
-    
-  // ✅ LOGIN
+  // ✅ LOGIN — POST /auth/local
   const login = async (credential: Credentials) => {
-    const { data } = await api.post('/auth/local',
-      {identifire: credential.email, password: credential.password} );
-
-    setUser({ ...data.user, token:data.jwt} );
-
-    if (data?.user?.age && data?.user?.weight && data?.user?.goal) {
-      setOnboardingCompleted(true);
+    try {
+      const { data } = await api.post('/auth/local', {
+        identifier: credential.email,
+        password: credential.password,
+      });
+      localStorage.setItem("token", data.jwt);
+      setUser({ ...data.user, token: data.jwt });
+      if (data.user?.age && data.user?.weight && data.user?.goal) {
+        setOnboardingCompleted(true);
+      }
+    } catch (error: any) {
+      throw new Error(
+        error?.response?.data?.error?.message || "Login failed"
+      );
     }
-
-    localStorage.setItem("token", data.jwt);
-    api.defaults.headers.common['Authorization'] =`Bearer ${data.jwt}`
   };
 
-  // ✅ FETCH USER
-  const fetchUser = async (_token: string) => {
-    const { data } = await api.get('food-logs', {headers:{Authorization:`Bearer${_token}`}});
-
-    setUser(data);
-
-    if (data?.age && data?.weight && data?.goal) {
-      setOnboardingCompleted(true);
+  // ✅ FETCH USER — GET /users/me
+  const fetchUser = async (token: string) => {
+    try {
+      const { data } = await api.get('/users/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser({ ...data, token });
+      if (data?.age && data?.weight && data?.goal) {
+        setOnboardingCompleted(true);
+      }
+    } catch {
+      // token invalid or expired — clear it
+      localStorage.removeItem("token");
+    } finally {
+      setIsUserFetched(true);
     }
-
-   api.defaults.headers.common['Authorization'] =`Bearer ${data.jwt}`
   };
 
-  // ✅ FETCH FOOD LOGS
-  const fetchFoodLogs = async (_token: string) => {
-    const { data } = await api.get('/food-logs');
-    setAllFoodLogs(data);
+  // ✅ FETCH FOOD LOGS — GET /food-logs (filtered by user in controller)
+  const fetchFoodLogs = async () => {
+    try {
+      const { data } = await api.get('/food-logs');
+      // controller returns array directly
+      setAllFoodLogs(Array.isArray(data) ? data : data.data ?? []);
+    } catch {
+      setAllFoodLogs([]);
+    }
   };
 
-  // ✅ FETCH ACTIVITY LOGS
-  const fetchActivityLogs = async (_token: string) => {
-    const { data } = await api.get('/activity-logs');
-    setActivityLogs(data);
+  // ✅ FETCH ACTIVITY LOGS — GET /activity-logs
+  const fetchActivityLogs = async () => {
+    try {
+      const { data } = await api.get('/activity-logs');
+      setActivityLogs(Array.isArray(data) ? data : data.data ?? []);
+    } catch {
+      setActivityLogs([]);
+    }
   };
 
   // ✅ LOGOUT
@@ -96,23 +107,27 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("token");
     setUser(null);
     setOnboardingCompleted(false);
-    api.defaults.headers.common['Authorization'] = '',
+    setAllFoodLogs([]);
+    setActivityLogs([]);
     navigate("/");
   };
 
-  // ✅ INIT LOAD
+  // ✅ INIT — on mount, restore session
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (token) {
       (async () => {
         await fetchUser(token);
-        await fetchFoodLogs(token);
-        await fetchActivityLogs(token);
+        await fetchFoodLogs();
+        await fetchActivityLogs();
       })();
-    } 
+    } else {
+      setIsUserFetched(true);
+    }
   }, []);
- const today = new Date().toISOString().split('T')[0];
+
+  const today = new Date().toISOString().split('T')[0];
+
   const value: AppContextType = {
     today,
     user,
@@ -128,13 +143,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setAllFoodLogs,
     allActivityLogs,
     setAllActivityLogs: setActivityLogs,
-    
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-// ✅ Custom hook
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {
