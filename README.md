@@ -9,7 +9,7 @@ This project was built as part of my journey to improve my TypeScript skills whi
 
 ## 🚀 Live Demo
 
-🔗 tracker-clone-7t5l.vercel.app/
+🔗 https://tracker-clone-7t5l.vercel.app/
 
 ---
 
